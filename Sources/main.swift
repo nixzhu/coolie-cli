@@ -47,29 +47,29 @@ func main(_ arguments: [String]) {
 
     let argumentLabelOption = Arguments.Option.Long(key: "argument-label")
     arguments.valueOfOption(argumentLabelOption).flatMap {
-        Config.argumentLabel = $0
+        Coolie.Config.argumentLabel = $0
     }
     let parameterNameOption = Arguments.Option.Long(key: "parameter-name")
     arguments.valueOfOption(parameterNameOption).flatMap {
-        Config.parameterName = $0
+        Coolie.Config.parameterName = $0
     }
 
     let constructorNameOption = Arguments.Option.Long(key: "constructor-name")
     arguments.valueOfOption(constructorNameOption).flatMap {
-        Config.constructorName = $0
+        Coolie.Config.constructorName = $0
     }
 
     let jsonDictionaryNameOption = Arguments.Option.Long(key: "json-dictionary-name")
     arguments.valueOfOption(jsonDictionaryNameOption).flatMap {
-        Config.jsonDictionaryName = $0
+        Coolie.Config.jsonDictionaryName = $0
     }
 
     let debugOption = Arguments.Option.Long(key: "debug")
-    Config.debug = arguments.containsOption(debugOption)
+    Coolie.Config.debug = arguments.containsOption(debugOption)
     let throwsOption = Arguments.Option.Long(key: "throws")
-    Config.throwsEnabled = arguments.containsOption(throwsOption)
+    Coolie.Config.throwsEnabled = arguments.containsOption(throwsOption)
     let publicOption = Arguments.Option.Long(key: "public")
-    Config.publicEnabled = arguments.containsOption(publicOption)
+    Coolie.Config.publicEnabled = arguments.containsOption(publicOption)
 
     let modelTypeOption = Arguments.Option.Long(key: "model-type")
     let modelTypeRawValue = arguments.valueOfOption(modelTypeOption)?.lowercased()
@@ -77,21 +77,21 @@ func main(_ arguments: [String]) {
 
     let iso8601DateFormatterNameOption = Arguments.Option.Long(key: "iso8601-date-formatter-name")
     if let iso8601DateFormatterName = arguments.valueOfOption(iso8601DateFormatterNameOption) {
-        Config.DateFormatterName.iso8601 = iso8601DateFormatterName
+        Coolie.Config.DateFormatterName.iso8601 = iso8601DateFormatterName
     }
 
     let dateOnlyDateFormatterNameOption = Arguments.Option.Long(key: "date-only-date-formatter-name")
     if let dateOnlyDateFormatterName = arguments.valueOfOption(dateOnlyDateFormatterNameOption) {
-        Config.DateFormatterName.dateOnly = dateOnlyDateFormatterName
+        Coolie.Config.DateFormatterName.dateOnly = dateOnlyDateFormatterName
     }
 
     let model = coolie.generateModel(
         name: modelName,
         type: modelType,
-        argumentLabel: Config.argumentLabel,
-        constructorName: Config.constructorName,
-        jsonDictionaryName: Config.jsonDictionaryName,
-        debug: Config.debug
+        argumentLabel: Coolie.Config.argumentLabel,
+        constructorName: Coolie.Config.constructorName,
+        jsonDictionaryName: Coolie.Config.jsonDictionaryName,
+        debug: Coolie.Config.debug
     )
 
     model.flatMap({ print($0) })
