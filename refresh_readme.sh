@@ -1,5 +1,7 @@
 #!/bin/bash
 
+swift build --configuration release
+
 echo "# Coolie([苦力](https://zh.wikipedia.org/wiki/%E8%8B%A6%E5%8A%9B))"
 echo
 echo "Coolie parse a JSON file to generate models (& their constructors)."
