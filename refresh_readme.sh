@@ -65,13 +65,13 @@ echo
 echo "Or the way I like with throws:"
 echo
 echo "\`\`\` bash"
-echo "$ .build/release/coolie-cli -i test.json --model-name User --argument-label with --parameter-name json --json-dictionary-name JSONDictionary --throws"
+echo "$ .build/release/coolie-cli -i test.json --model-name User --argument-label with --parameter-name json --json-dictionary-name JSONDictionary --throws --public"
 echo "\`\`\`"
 echo
 echo "It will generate:"
 echo
 echo "\`\`\` swift"
-.build/release/coolie-cli -i test.json --model-name User --argument-label with --parameter-name json --json-dictionary-name JSONDictionary --throws
+.build/release/coolie-cli -i test.json --model-name User --argument-label with --parameter-name json --json-dictionary-name JSONDictionary --throws --public
 echo "\`\`\`"
 echo
 echo "Of course, you need to define \`ParseError\`:"

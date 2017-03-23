@@ -85,27 +85,27 @@ struct User {
 		let latestDreams: [String?]
 		let latestFeelings: [Double]
 		struct Love {
-			init?(_ json: [String: Any]) {
+			init?(json info: [String: Any]) {
 			}
 		}
 		let loves: [Love]
 		let motto: String
 		let skills: [String]
 		let twitter: URL
-		init?(_ json: [String: Any]) {
-			guard let birthdayString = json["birthday"] as? String else { return nil }
+		init?(json info: [String: Any]) {
+			guard let birthdayString = info["birthday"] as? String else { return nil }
 			guard let birthday = dateOnlyDateFormatter.date(from: birthdayString) else { return nil }
-			guard let favoriteWebsitesStrings = json["favorite_websites"] as? [String] else { return nil }
+			guard let favoriteWebsitesStrings = info["favorite_websites"] as? [String] else { return nil }
 			let favoriteWebsites = favoriteWebsitesStrings.map({ URL(string: $0) }).flatMap({ $0 })
-			let gender = json["gender"] as? UnknownType
-			guard let isDogLover = json["is_dog_lover"] as? Bool else { return nil }
-			guard let latestDreams = json["latest_dreams"] as? [String?] else { return nil }
-			guard let latestFeelings = json["latest_feelings"] as? [Double] else { return nil }
-			guard let lovesJSONArray = json["loves"] as? [[String: Any]] else { return nil }
-			let loves = lovesJSONArray.map({ Love($0) }).flatMap({ $0 })
-			guard let motto = json["motto"] as? String else { return nil }
-			guard let skills = json["skills"] as? [String] else { return nil }
-			guard let twitterString = json["twitter"] as? String else { return nil }
+			let gender = info["gender"] as? UnknownType
+			guard let isDogLover = info["is_dog_lover"] as? Bool else { return nil }
+			guard let latestDreams = info["latest_dreams"] as? [String?] else { return nil }
+			guard let latestFeelings = info["latest_feelings"] as? [Double] else { return nil }
+			guard let lovesJSONArray = info["loves"] as? [[String: Any]] else { return nil }
+			let loves = lovesJSONArray.map({ Love(json: $0) }).flatMap({ $0 })
+			guard let motto = info["motto"] as? String else { return nil }
+			guard let skills = info["skills"] as? [String] else { return nil }
+			guard let twitterString = info["twitter"] as? String else { return nil }
 			guard let twitter = URL(string: twitterString) else { return nil }
 			self.birthday = birthday
 			self.favoriteWebsites = favoriteWebsites
@@ -123,9 +123,9 @@ struct User {
 	struct Experience {
 		let age: Double
 		let name: String
-		init?(_ json: [String: Any]) {
-			guard let age = json["age"] as? Double else { return nil }
-			guard let name = json["name"] as? String else { return nil }
+		init?(json info: [String: Any]) {
+			guard let age = info["age"] as? Double else { return nil }
+			guard let name = info["name"] as? String else { return nil }
 			self.age = age
 			self.name = name
 		}
@@ -139,10 +139,10 @@ struct User {
 			let code: String
 			let comments: [String]
 			let design: String
-			init?(_ json: [String: Any]) {
-				guard let code = json["code"] as? String else { return nil }
-				guard let comments = json["comments"] as? [String] else { return nil }
-				guard let design = json["design"] as? String else { return nil }
+			init?(json info: [String: Any]) {
+				guard let code = info["code"] as? String else { return nil }
+				guard let comments = info["comments"] as? [String] else { return nil }
+				guard let design = info["design"] as? String else { return nil }
 				self.code = code
 				self.comments = comments
 				self.design = design
@@ -151,14 +151,14 @@ struct User {
 		let more: More?
 		let name: String?
 		let url: URL?
-		init?(_ json: [String: Any]) {
-			guard let bytes = json["bytes"] as? [Int] else { return nil }
-			let createdAtString = json["created_at"] as? String
+		init?(json info: [String: Any]) {
+			guard let bytes = info["bytes"] as? [Int] else { return nil }
+			let createdAtString = info["created_at"] as? String
 			let createdAt = createdAtString.flatMap({ iso8601DateFormatter.date(from: $0) })
-			let moreJSONDictionary = json["more"] as? [String: Any]
-			let more = moreJSONDictionary.flatMap({ More($0) })
-			let name = json["name"] as? String
-			let urlString = json["url"] as? String
+			let moreJSONDictionary = info["more"] as? [String: Any]
+			let more = moreJSONDictionary.flatMap({ More(json: $0) })
+			let name = info["name"] as? String
+			let urlString = info["url"] as? String
 			let url = urlString.flatMap({ URL(string: $0) })
 			self.bytes = bytes
 			self.createdAt = createdAt
@@ -168,14 +168,14 @@ struct User {
 		}
 	}
 	let projects: [Project?]
-	init?(_ json: [String: Any]) {
-		guard let detailJSONDictionary = json["detail"] as? [String: Any] else { return nil }
-		guard let detail = Detail(detailJSONDictionary) else { return nil }
-		guard let experiencesJSONArray = json["experiences"] as? [[String: Any]] else { return nil }
-		let experiences = experiencesJSONArray.map({ Experience($0) }).flatMap({ $0 })
-		guard let name = json["name"] as? String else { return nil }
-		guard let projectsJSONArray = json["projects"] as? [[String: Any]?] else { return nil }
-		let projects = projectsJSONArray.map({ $0.flatMap({ Project($0) }) })
+	init?(json info: [String: Any]) {
+		guard let detailJSONDictionary = info["detail"] as? [String: Any] else { return nil }
+		guard let detail = Detail(json: detailJSONDictionary) else { return nil }
+		guard let experiencesJSONArray = info["experiences"] as? [[String: Any]] else { return nil }
+		let experiences = experiencesJSONArray.map({ Experience(json: $0) }).flatMap({ $0 })
+		guard let name = info["name"] as? String else { return nil }
+		guard let projectsJSONArray = info["projects"] as? [[String: Any]?] else { return nil }
+		let projects = projectsJSONArray.map({ $0.flatMap({ Project(json: $0) }) })
 		self.detail = detail
 		self.experiences = experiences
 		self.name = name
@@ -225,14 +225,15 @@ struct User {
 		let latestDreams: [String?]
 		let latestFeelings: [Double]
 		struct Love {
-			init?(_ json: [String: Any]) {
+			static func create(with json: JSONDictionary) -> Love? {
+				return Love()
 			}
 		}
 		let loves: [Love]
 		let motto: String
 		let skills: [String]
 		let twitter: URL
-		init?(_ json: [String: Any]) {
+		static func create(with json: JSONDictionary) -> Detail? {
 			guard let birthdayString = json["birthday"] as? String else { return nil }
 			guard let birthday = dateOnlyDateFormatter.date(from: birthdayString) else { return nil }
 			guard let favoriteWebsitesStrings = json["favorite_websites"] as? [String] else { return nil }
@@ -241,33 +242,23 @@ struct User {
 			guard let isDogLover = json["is_dog_lover"] as? Bool else { return nil }
 			guard let latestDreams = json["latest_dreams"] as? [String?] else { return nil }
 			guard let latestFeelings = json["latest_feelings"] as? [Double] else { return nil }
-			guard let lovesJSONArray = json["loves"] as? [[String: Any]] else { return nil }
-			let loves = lovesJSONArray.map({ Love($0) }).flatMap({ $0 })
+			guard let lovesJSONArray = json["loves"] as? [JSONDictionary] else { return nil }
+			let loves = lovesJSONArray.map({ Love.create(with: $0) }).flatMap({ $0 })
 			guard let motto = json["motto"] as? String else { return nil }
 			guard let skills = json["skills"] as? [String] else { return nil }
 			guard let twitterString = json["twitter"] as? String else { return nil }
 			guard let twitter = URL(string: twitterString) else { return nil }
-			self.birthday = birthday
-			self.favoriteWebsites = favoriteWebsites
-			self.gender = gender
-			self.isDogLover = isDogLover
-			self.latestDreams = latestDreams
-			self.latestFeelings = latestFeelings
-			self.loves = loves
-			self.motto = motto
-			self.skills = skills
-			self.twitter = twitter
+			return Detail(birthday: birthday, favoriteWebsites: favoriteWebsites, gender: gender, isDogLover: isDogLover, latestDreams: latestDreams, latestFeelings: latestFeelings, loves: loves, motto: motto, skills: skills, twitter: twitter)
 		}
 	}
 	let detail: Detail
 	struct Experience {
 		let age: Double
 		let name: String
-		init?(_ json: [String: Any]) {
+		static func create(with json: JSONDictionary) -> Experience? {
 			guard let age = json["age"] as? Double else { return nil }
 			guard let name = json["name"] as? String else { return nil }
-			self.age = age
-			self.name = name
+			return Experience(age: age, name: name)
 		}
 	}
 	let experiences: [Experience]
@@ -279,47 +270,38 @@ struct User {
 			let code: String
 			let comments: [String]
 			let design: String
-			init?(_ json: [String: Any]) {
+			static func create(with json: JSONDictionary) -> More? {
 				guard let code = json["code"] as? String else { return nil }
 				guard let comments = json["comments"] as? [String] else { return nil }
 				guard let design = json["design"] as? String else { return nil }
-				self.code = code
-				self.comments = comments
-				self.design = design
+				return More(code: code, comments: comments, design: design)
 			}
 		}
 		let more: More?
 		let name: String?
 		let url: URL?
-		init?(_ json: [String: Any]) {
+		static func create(with json: JSONDictionary) -> Project? {
 			guard let bytes = json["bytes"] as? [Int] else { return nil }
 			let createdAtString = json["created_at"] as? String
 			let createdAt = createdAtString.flatMap({ iso8601DateFormatter.date(from: $0) })
-			let moreJSONDictionary = json["more"] as? [String: Any]
-			let more = moreJSONDictionary.flatMap({ More($0) })
+			let moreJSONDictionary = json["more"] as? JSONDictionary
+			let more = moreJSONDictionary.flatMap({ More.create(with: $0) })
 			let name = json["name"] as? String
 			let urlString = json["url"] as? String
 			let url = urlString.flatMap({ URL(string: $0) })
-			self.bytes = bytes
-			self.createdAt = createdAt
-			self.more = more
-			self.name = name
-			self.url = url
+			return Project(bytes: bytes, createdAt: createdAt, more: more, name: name, url: url)
 		}
 	}
 	let projects: [Project?]
-	init?(_ json: [String: Any]) {
-		guard let detailJSONDictionary = json["detail"] as? [String: Any] else { return nil }
-		guard let detail = Detail(detailJSONDictionary) else { return nil }
-		guard let experiencesJSONArray = json["experiences"] as? [[String: Any]] else { return nil }
-		let experiences = experiencesJSONArray.map({ Experience($0) }).flatMap({ $0 })
+	static func create(with json: JSONDictionary) -> User? {
+		guard let detailJSONDictionary = json["detail"] as? JSONDictionary else { return nil }
+		guard let detail = Detail.create(with: detailJSONDictionary) else { return nil }
+		guard let experiencesJSONArray = json["experiences"] as? [JSONDictionary] else { return nil }
+		let experiences = experiencesJSONArray.map({ Experience.create(with: $0) }).flatMap({ $0 })
 		guard let name = json["name"] as? String else { return nil }
-		guard let projectsJSONArray = json["projects"] as? [[String: Any]?] else { return nil }
-		let projects = projectsJSONArray.map({ $0.flatMap({ Project($0) }) })
-		self.detail = detail
-		self.experiences = experiences
-		self.name = name
-		self.projects = projects
+		guard let projectsJSONArray = json["projects"] as? [JSONDictionary?] else { return nil }
+		let projects = projectsJSONArray.map({ $0.flatMap({ Project.create(with: $0) }) })
+		return User(detail: detail, experiences: experiences, name: name, projects: projects)
 	}
 }
 ```
@@ -329,43 +311,51 @@ You may need `typealias JSONDictionary = [String: Any]`.
 Or the way I like with throws:
 
 ``` bash
-$ .build/release/coolie-cli -i test.json --model-name User --argument-label with --parameter-name json --json-dictionary-name JSONDictionary --throws
+$ .build/release/coolie-cli -i test.json --model-name User --argument-label with --parameter-name json --json-dictionary-name JSONDictionary --throws --public
 ```
 
 It will generate:
 
 ``` swift
-struct User {
-	struct Detail {
-		let birthday: Date
-		let favoriteWebsites: [URL]
-		let gender: UnknownType?
-		let isDogLover: Bool
-		let latestDreams: [String?]
-		let latestFeelings: [Double]
-		struct Love {
-			init?(_ json: [String: Any]) {
+public struct User {
+	public struct Detail {
+		public let birthday: Date
+		public let favoriteWebsites: [URL]
+		public let gender: UnknownType?
+		public let isDogLover: Bool
+		public let latestDreams: [String?]
+		public let latestFeelings: [Double]
+		public struct Love {
+			public init(with json: JSONDictionary) throws {
+			}
+			public static func create(with json: JSONDictionary) -> Love? {
+				do {
+					return try Love(with: json)
+				} catch {
+					print("Love json parse error: \(error)")
+					return nil
+				}
 			}
 		}
-		let loves: [Love]
-		let motto: String
-		let skills: [String]
-		let twitter: URL
-		init?(_ json: [String: Any]) {
-			guard let birthdayString = json["birthday"] as? String else { return nil }
-			guard let birthday = dateOnlyDateFormatter.date(from: birthdayString) else { return nil }
-			guard let favoriteWebsitesStrings = json["favorite_websites"] as? [String] else { return nil }
+		public let loves: [Love]
+		public let motto: String
+		public let skills: [String]
+		public let twitter: URL
+		public init(with json: JSONDictionary) throws {
+			guard let birthdayString = json["birthday"] as? String else { throw ParseError.notFound(key: "birthday") }
+			guard let birthday = dateOnlyDateFormatter.date(from: birthdayString) else { throw ParseError.failedToGenerate(property: "birthday") }
+			guard let favoriteWebsitesStrings = json["favorite_websites"] as? [String] else { throw ParseError.notFound(key: "favorite_websites") }
 			let favoriteWebsites = favoriteWebsitesStrings.map({ URL(string: $0) }).flatMap({ $0 })
 			let gender = json["gender"] as? UnknownType
-			guard let isDogLover = json["is_dog_lover"] as? Bool else { return nil }
-			guard let latestDreams = json["latest_dreams"] as? [String?] else { return nil }
-			guard let latestFeelings = json["latest_feelings"] as? [Double] else { return nil }
-			guard let lovesJSONArray = json["loves"] as? [[String: Any]] else { return nil }
-			let loves = lovesJSONArray.map({ Love($0) }).flatMap({ $0 })
-			guard let motto = json["motto"] as? String else { return nil }
-			guard let skills = json["skills"] as? [String] else { return nil }
-			guard let twitterString = json["twitter"] as? String else { return nil }
-			guard let twitter = URL(string: twitterString) else { return nil }
+			guard let isDogLover = json["is_dog_lover"] as? Bool else { throw ParseError.notFound(key: "is_dog_lover") }
+			guard let latestDreams = json["latest_dreams"] as? [String?] else { throw ParseError.failedToGenerate(property: "latestDreams") }
+			guard let latestFeelings = json["latest_feelings"] as? [Double] else { throw ParseError.notFound(key: "latest_feelings") }
+			guard let lovesJSONArray = json["loves"] as? [JSONDictionary] else { throw ParseError.notFound(key: "loves") }
+			let loves = lovesJSONArray.map({ Love.create(with: $0) }).flatMap({ $0 })
+			guard let motto = json["motto"] as? String else { throw ParseError.notFound(key: "motto") }
+			guard let skills = json["skills"] as? [String] else { throw ParseError.notFound(key: "skills") }
+			guard let twitterString = json["twitter"] as? String else { throw ParseError.notFound(key: "twitter") }
+			guard let twitter = URL(string: twitterString) else { throw ParseError.failedToGenerate(property: "twitter") }
 			self.birthday = birthday
 			self.favoriteWebsites = favoriteWebsites
 			self.gender = gender
@@ -377,45 +367,69 @@ struct User {
 			self.skills = skills
 			self.twitter = twitter
 		}
+		public static func create(with json: JSONDictionary) -> Detail? {
+			do {
+				return try Detail(with: json)
+			} catch {
+				print("Detail json parse error: \(error)")
+				return nil
+			}
+		}
 	}
-	let detail: Detail
-	struct Experience {
-		let age: Double
-		let name: String
-		init?(_ json: [String: Any]) {
-			guard let age = json["age"] as? Double else { return nil }
-			guard let name = json["name"] as? String else { return nil }
+	public let detail: Detail
+	public struct Experience {
+		public let age: Double
+		public let name: String
+		public init(with json: JSONDictionary) throws {
+			guard let age = json["age"] as? Double else { throw ParseError.notFound(key: "age") }
+			guard let name = json["name"] as? String else { throw ParseError.notFound(key: "name") }
 			self.age = age
 			self.name = name
 		}
+		public static func create(with json: JSONDictionary) -> Experience? {
+			do {
+				return try Experience(with: json)
+			} catch {
+				print("Experience json parse error: \(error)")
+				return nil
+			}
+		}
 	}
-	let experiences: [Experience]
-	let name: String
-	struct Project {
-		let bytes: [Int]
-		let createdAt: Date?
-		struct More {
-			let code: String
-			let comments: [String]
-			let design: String
-			init?(_ json: [String: Any]) {
-				guard let code = json["code"] as? String else { return nil }
-				guard let comments = json["comments"] as? [String] else { return nil }
-				guard let design = json["design"] as? String else { return nil }
+	public let experiences: [Experience]
+	public let name: String
+	public struct Project {
+		public let bytes: [Int]
+		public let createdAt: Date?
+		public struct More {
+			public let code: String
+			public let comments: [String]
+			public let design: String
+			public init(with json: JSONDictionary) throws {
+				guard let code = json["code"] as? String else { throw ParseError.notFound(key: "code") }
+				guard let comments = json["comments"] as? [String] else { throw ParseError.notFound(key: "comments") }
+				guard let design = json["design"] as? String else { throw ParseError.notFound(key: "design") }
 				self.code = code
 				self.comments = comments
 				self.design = design
 			}
+			public static func create(with json: JSONDictionary) -> More? {
+				do {
+					return try More(with: json)
+				} catch {
+					print("More json parse error: \(error)")
+					return nil
+				}
+			}
 		}
-		let more: More?
-		let name: String?
-		let url: URL?
-		init?(_ json: [String: Any]) {
-			guard let bytes = json["bytes"] as? [Int] else { return nil }
+		public let more: More?
+		public let name: String?
+		public let url: URL?
+		public init(with json: JSONDictionary) throws {
+			guard let bytes = json["bytes"] as? [Int] else { throw ParseError.notFound(key: "bytes") }
 			let createdAtString = json["created_at"] as? String
 			let createdAt = createdAtString.flatMap({ iso8601DateFormatter.date(from: $0) })
-			let moreJSONDictionary = json["more"] as? [String: Any]
-			let more = moreJSONDictionary.flatMap({ More($0) })
+			let moreJSONDictionary = json["more"] as? JSONDictionary
+			let more = moreJSONDictionary.flatMap({ More(with: $0) })
 			let name = json["name"] as? String
 			let urlString = json["url"] as? String
 			let url = urlString.flatMap({ URL(string: $0) })
@@ -425,20 +439,36 @@ struct User {
 			self.name = name
 			self.url = url
 		}
+		public static func create(with json: JSONDictionary) -> Project? {
+			do {
+				return try Project(with: json)
+			} catch {
+				print("Project json parse error: \(error)")
+				return nil
+			}
+		}
 	}
-	let projects: [Project?]
-	init?(_ json: [String: Any]) {
-		guard let detailJSONDictionary = json["detail"] as? [String: Any] else { return nil }
-		guard let detail = Detail(detailJSONDictionary) else { return nil }
-		guard let experiencesJSONArray = json["experiences"] as? [[String: Any]] else { return nil }
-		let experiences = experiencesJSONArray.map({ Experience($0) }).flatMap({ $0 })
-		guard let name = json["name"] as? String else { return nil }
-		guard let projectsJSONArray = json["projects"] as? [[String: Any]?] else { return nil }
-		let projects = projectsJSONArray.map({ $0.flatMap({ Project($0) }) })
+	public let projects: [Project?]
+	public init(with json: JSONDictionary) throws {
+		guard let detailJSONDictionary = json["detail"] as? JSONDictionary else { throw ParseError.notFound(key: "detail") }
+		guard let detail = try? Detail(with: detailJSONDictionary) else { throw ParseError.failedToGenerate(property: "detail") }
+		guard let experiencesJSONArray = json["experiences"] as? [JSONDictionary] else { throw ParseError.notFound(key: "experiences") }
+		let experiences = experiencesJSONArray.map({ Experience.create(with: $0) }).flatMap({ $0 })
+		guard let name = json["name"] as? String else { throw ParseError.notFound(key: "name") }
+		guard let projectsJSONArray = json["projects"] as? [JSONDictionary?] else { throw ParseError.notFound(key: "projects") }
+		let projects = projectsJSONArray.map({ $0.flatMap({ Project.create(with: $0) }) })
 		self.detail = detail
 		self.experiences = experiences
 		self.name = name
 		self.projects = projects
+	}
+	public static func create(with json: JSONDictionary) -> User? {
+		do {
+			return try User(with: json)
+		} catch {
+			print("User json parse error: \(error)")
+			return nil
+		}
 	}
 }
 ```
@@ -446,7 +476,7 @@ struct User {
 Of course, you need to define `ParseError`:
 
 ``` swift
-enum ParseError: Error {
+public enum ParseError: Error {
     case notFound(key: String)
     case failedToGenerate(property: String)
 }
