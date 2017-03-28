@@ -1,0 +1,12 @@
+{
+  "autoPin": true,
+  "pins": [
+    {
+      "package": "Coolie",
+      "reason": null,
+      "repositoryURL": "https://github.com/nixzhu/Coolie.git",
+      "version": "0.9.3"
+    }
+  ],
+  "version": 1
+}
